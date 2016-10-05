@@ -15,15 +15,17 @@ class Oystercard
     @balance = 0
     @card_history = []
     @current_journey = {}
+
   end
 
   def top_up(money)
-    fail "Card limit is #{Oystercard::MONEY_LIMIT}." if money + @balance > Oystercard::MONEY_LIMIT
+    fail "Card limit is #{MONEY_LIMIT}." if money + @balance > MONEY_LIMIT
     @balance += money
   end
 
   def touch_in(station)
     fail "Insufficient funds for journey" if @balance < MINIMUM_BALANCE
+    @journey.start_journey(station)
     @entry_station = station
   end
 
