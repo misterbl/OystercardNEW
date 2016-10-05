@@ -17,6 +17,7 @@ describe Oystercard do
     end
   end
 
+
   context '#top up' do
 
     it 'limits top up value MONEY_LIMIT' do
@@ -36,27 +37,16 @@ describe Oystercard do
 
   end
 
-  context 'touching in and out' do
+  context 'touching in and out - ' do
 
-    it 'responds to in_journey' do
-      expect(card.in_journey?).to eq(true).or eq(false)
-    end
 
-    it 'touching in registers that the card is in journey' do
-      card.touch_in(mudchute)
-      expect(card.in_journey?).to eq true
-    end
+
 
     it 'raises error if card below minimum balance when touching in' do
       card.top_up(-1)
       expect{card.touch_in(mudchute)}.to raise_error "Insufficient funds for journey"
     end
 
-    it 'touching out registers the card as no longer being in journey' do
-      card.touch_in(mudchute)
-      card.touch_out(bank)
-      expect(card.in_journey?).to eq false
-    end
 
     it 'charges the card on touch out' do
       card.touch_in(mudchute)
@@ -66,10 +56,6 @@ describe Oystercard do
 
   context 'journey status and history' do
 
-    it 'records the entry station on touch in' do
-      card.touch_in(mudchute)
-      expect(card.entry_station).to eq mudchute
-    end
 
     it 'expects station to be nil after touch out' do
       card.touch_in(mudchute)
@@ -77,31 +63,14 @@ describe Oystercard do
       expect(card.entry_station).to eq nil
     end
 
-    it 'record the exit station on touch out' do
-      card.touch_in(mudchute)
-      card.touch_out(bank)
-      expect(card.card_history.pop).to include exit_station: bank
-    end
 
   end
 
   context 'Journey history' do
 
-    it 'has an empty list of journeys by default' do
+    it 'has an empty journey history by default' do
       expect(card.card_history).to eq []
     end
-
-    it 'begins with empty journey history by default' do
-      expect(card.current_journey).to be {}
-    end
-
-    it 'stores a hash of entry and exit stations' do
-      card.touch_in(mudchute)
-      card.touch_out(bank)
-      expect(card.current_journey).to include entry_station: mudchute, exit_station: bank
-    end
-
-
 
 
   end
