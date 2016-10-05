@@ -3,19 +3,22 @@ require_relative 'oystercard'
 
 class Journey
 
-attr_reader :in_journey, :entry_station, :exit_station, :current_journey
+attr_reader :in_journey, :current_journey
+attr_accessor :entry_station, :exit_station
+
   PENALTY_FARE = 6
   FARE = 1
 
   def initialize
     @current_journey = {}
+    @entry_station = nil
+    @exit_station = nil
   end
 
   def start_journey(station)
     if @in_journey == true
       create_journey
     else
-      create_journey
       @in_journey = true
       @entry_station = station
     end
@@ -23,17 +26,17 @@ attr_reader :in_journey, :entry_station, :exit_station, :current_journey
 
   def finish_journey(station)
     @exit_station = station
+    create_journey
     @in_journey = false
   end
 
   def create_journey
     if @entry_station == nil
-      @entry_station = "Incomplete journey"
+      @entry_station = :Incomplete_journey
     elsif @exit_station == nil
-      @exit_station = "Incomplete journey"
+      @exit_station = :Incomplete_journey
     end
     @current_journey = { entry_station: @entry_station, exit_station: @exit_station }
-    clear_current_journey
   end
 
   def clear_current_journey
@@ -46,8 +49,13 @@ attr_reader :in_journey, :entry_station, :exit_station, :current_journey
   end
 
   def fare
-    PENALTY_FARE if @entry_station == nil
-    PENALTY_FARE if @exit_station == nil
-    FARE if @entry_station != nil && @exit_station != nil
+    if @entry_station == nil
+      PENALTY_FARE
+    elsif @exit_station == nil
+      PENALTY_FARE
+    else
+      FARE
+    end
   end
+
 end

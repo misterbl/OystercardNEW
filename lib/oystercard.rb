@@ -2,8 +2,7 @@ require_relative 'station'
 
 class Oystercard
 
-  attr_reader :balance, :entry_station,
-              :exit_station, :current_journey,
+  attr_reader :balance, :current_journey,
               :card_history
 
   MONEY_LIMIT = 90
@@ -37,9 +36,10 @@ class Oystercard
       deduct(@journey.fare)
       @journey.finish_journey(station)
     else
-      deduct(@journey.fare)
       @journey.finish_journey(station)
+      deduct(@journey.fare)
       @card_history << @journey.current_journey
+      @journey.clear_current_journey
     end
   end
 
