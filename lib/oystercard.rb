@@ -1,11 +1,13 @@
 require_relative 'station'
 require_relative 'journey'
+require_relative 'journey_log'
 
 class Oystercard
 
   attr_reader :balance, :current_journey,
-              :card_history, :entry_station, :exit_station, :entry_zone, :exit_zone,
+              :entry_station, :exit_station, :entry_zone, :exit_zone,
               :entry_station_name, :exit_station_name
+  attr_accessor :journey_log
 
   MONEY_LIMIT = 90
   MINIMUM_BALANCE = 1
@@ -14,7 +16,7 @@ class Oystercard
 
   def initialize
     @balance = 0
-    @card_history = []
+    @journey_log = JourneyLog.new
   end
 
   def top_up(money)
@@ -39,8 +41,8 @@ class Oystercard
       double_exit(@exit_station_name, @exit_zone)
     else
       @current_journey.finish_journey(@exit_station_name, @exit_zone)
-      deduct(Journey::FARE)
-      @card_history << @current_journey
+      deduct(@current_journey.fare_calc)
+      @journey_log.log(@current_journey)
       @current_journey = nil
     end
   end
@@ -48,7 +50,7 @@ class Oystercard
   def double_entry
     deduct(Journey::PENALTY_FARE)
     @current_journey.exit_station = unknown_station
-    @card_history << @current_journey
+    @journey_log.log(@current_journey)
     @current_journey = nil
   end
 
@@ -58,7 +60,7 @@ class Oystercard
     double_exit_journey = Journey.new("Unknown Station", "Unknown Zone")
     double_exit_journey.exit_station = Station.new(@exit_station_name, @exit_zone)
     deduct(Journey::PENALTY_FARE)
-    @card_history << double_exit_journey
+    @journey_log.log(double_exit_journey)
     double_exit_journey = nil
     @current_journey = nil
   end

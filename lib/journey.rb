@@ -8,7 +8,6 @@ attr_reader :in_journey, :current_journey, :entry_zone, :exit_zone, :entry_stati
 attr_accessor :entry_station, :exit_station
 
   PENALTY_FARE = 6
-  FARE = 1
 
   def initialize(entry_station_name, entry_zone)
     @entry_station_name = entry_station_name
@@ -34,6 +33,10 @@ attr_accessor :entry_station, :exit_station
     # create_journey
   end
 
+
+  def fare_calc
+    1 + (@entry_zone - @exit_zone).abs
+  end
   # def create_journey
   #   if @entry_station == nil
   #     @entry_station = :Incomplete_journey
