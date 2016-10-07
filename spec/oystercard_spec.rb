@@ -8,8 +8,14 @@ describe Oystercard do
     end
 
   #, balance => Oystercard::MINIMUM_BALANCE
-  let(:mudchute) {double :station}
-  let(:bank)     {double :station}
+  let(:mudchute) {double :entry_station_name}
+  let(:bank)     {double :exit_station_name}
+  let(:current_journey) {double :current_journey}
+
+  before :each do
+    allow(current_journey).to receive(:zone).and_return(2)
+    allow(current_journey).to receive(:name).and_return('mudchute')
+  end
 
   context 'balance' do
     it 'have balance' do
@@ -38,9 +44,14 @@ describe Oystercard do
 
   context 'touching in and out - ' do
 
-    it 'raises error if card below minimum balance when touching in' do
+    it 'raises error if card below minimum balance when touching in', focus: true do
       card.top_up(-1)
-      expect{card.touch_in(mudchute)}.to raise_error "Insufficient funds for journey"
+      expect{card.touch_in('mudchute',2)}.to raise_error "Insufficient funds for journey"
+    end
+
+    it 'creates a new journey on touch_in', focus: true do
+      card.touch_in('mudchute', 2)
+      expect(card.current_journey).to be_a_kind_of Journey
     end
 
     it 'charges the card on touch out' do

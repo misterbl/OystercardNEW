@@ -1,9 +1,11 @@
 require_relative 'station'
+require_relative 'journey'
 
 class Oystercard
 
   attr_reader :balance, :current_journey,
-              :card_history
+              :card_history, :entry_station, :exit_station, :entry_zone, :exit_zone,
+              :entry_station_name, :exit_station_name
 
   MONEY_LIMIT = 90
   MINIMUM_BALANCE = 1
@@ -13,7 +15,6 @@ class Oystercard
   def initialize
     @balance = 0
     @card_history = []
-    @journey = Journey.new
   end
 
   def top_up(money)
@@ -21,27 +22,51 @@ class Oystercard
     @balance += money
   end
 
-  def touch_in(station)
+  def touch_in(entry_station_name, entry_zone)
     fail "Insufficient funds for journey" if @balance < MINIMUM_BALANCE
-    if @journey.in_journey == true
-      deduct(@journey.fare)
-      @journey.start_journey(station)
+    if @current_journey != nil
+      double_entry
+    end
+    @entry_station_name = entry_station_name
+    @entry_zone = entry_zone
+    @current_journey = Journey.new(@entry_station_name, @entry_zone)
+  end
+
+  def touch_out(exit_station_name, exit_zone)
+    @exit_station_name = exit_station_name
+    @exit_zone = exit_zone
+    if @current_journey == nil
+      double_exit(@exit_station_name, @exit_zone)
     else
-      @journey.start_journey(station)
+      @current_journey.finish_journey(@exit_station_name, @exit_zone)
+      deduct(Journey::FARE)
+      @card_history << @current_journey
+      @current_journey = nil
     end
   end
 
-  def touch_out(station)
-    if @journey.in_journey == false
-      deduct(@journey.fare)
-      @journey.finish_journey(station)
-    else
-      @journey.finish_journey(station)
-      deduct(@journey.fare)
-      @card_history << @journey.current_journey
-      @journey.clear_current_journey
-    end
+  def double_entry
+    deduct(Journey::PENALTY_FARE)
+    @current_journey.exit_station = unknown_station
+    @card_history << @current_journey
+    @current_journey = nil
   end
+
+  def double_exit(exit_station_name, exit_zone)
+    @exit_station_name = exit_station_name
+    @exit_zone = exit_zone
+    double_exit_journey = Journey.new("Unknown Station", "Unknown Zone")
+    double_exit_journey.exit_station = Station.new(@exit_station_name, @exit_zone)
+    deduct(Journey::PENALTY_FARE)
+    @card_history << double_exit_journey
+    double_exit_journey = nil
+    @current_journey = nil
+  end
+
+  def unknown_station
+    Station.new("Unknown Station", "Unknown Zone")
+  end
+
 
 private
 

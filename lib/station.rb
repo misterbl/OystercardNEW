@@ -1,3 +1,5 @@
+
+
 class Station
 
 attr_reader :station_name, :zone
