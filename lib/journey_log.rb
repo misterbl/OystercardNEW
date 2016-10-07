@@ -1,7 +1,5 @@
 require_relative 'oystercard'
 
-
-
 class JourneyLog
 
 attr_accessor :journey_history
