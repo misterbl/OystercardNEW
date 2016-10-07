@@ -1,11 +1,23 @@
 require 'journey'
 
 describe Journey do
+  subject(:journey) {described_class.new(entry_station_name, entry_zone)}
+  let(:journey) {double :journey}
+  let(:entry_station) {double :entry_station}
+  let(:entry_station_name) {double :entry_station_name}
+  let(:entry_zone) {double :entry_zone}
+  before do
+  allow(journey).to receive(:entry_station_name).and_return('Waterloo')
+  allow(journey).to receive(:entry_zone).and_return(1)
+  allow(entry_station).to receive(:entry_station_name).and_return('Waterloo')
+  allow(entry_station).to receive(:entry_zone).and_return(1)
+  end
 
-  let(:card) {double :oystercard}
-  let(:mudchute) {double :station}
-  let(:bank) {double :station}
-
+  describe "#initialize" do
+    it "create a new station at initialize", focus: true do
+    expect(entry_station).to be_a_kind_of Station
+    end
+  end
   it 'starting journey registers the card is in journey' do
     subject.start_journey(mudchute)
     expect(subject.in_journey).to eq true
